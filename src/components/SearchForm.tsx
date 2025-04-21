@@ -65,7 +65,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
         {showSuggestions && suggestions.length > 0 && (
           <div className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-10">
             <div className="px-4 py-2 text-gray-700 font-semibold">
-              Popular searches
+              Recherche populaire
             </div>
             {suggestions.map((suggestion, index) => (
               <div

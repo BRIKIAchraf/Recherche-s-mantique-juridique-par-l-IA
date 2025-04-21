@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { sanitizeString } from "@/lib/utils";
 
 interface DocumentViewProps {
-  document: {
+  Document: {
     metadata: {
       title: string;
       plaintiff: string;
@@ -19,7 +19,7 @@ interface DocumentViewProps {
 }
 
 export default function DocumentView({
-  document,
+  Document,
   quote,
   onBack,
 }: DocumentViewProps) {
@@ -38,22 +38,22 @@ export default function DocumentView({
     <div className="flex flex-col h-screen bg-gray-50">
       <div className="p-4 bg-white shadow-md fixed w-full z-10">
         <button onClick={onBack} className="text-indigo-600 hover:underline">
-          &larr; Back to search
+          &larr; Précédent
         </button>
         <h1 className="text-2xl font-bold text-indigo-900 mt-2">
-          {document.metadata.title}
+          {Document.metadata.title}
         </h1>
         <div className="mt-1">
           <span className="font-semibold text-indigo-900">Topic:</span>{" "}
-          {document.metadata.topic}
+          {Document.metadata.topic}
         </div>
         <div className="mt-1">
           <span className="font-semibold text-indigo-900">Verdict:</span>{" "}
-          {document.metadata.outcome}
+          {Document.metadata.outcome}
         </div>
         <div className="mt-1">
           <span className="font-semibold text-indigo-900">Year:</span>{" "}
-          {new Date(document.metadata.date).toLocaleDateString()}
+          {new Date(Document.metadata.date).toLocaleDateString()}
         </div>
       </div>
       <div
@@ -63,7 +63,7 @@ export default function DocumentView({
       >
         <div
           dangerouslySetInnerHTML={{
-            __html: sanitizeString(document.metadata.pageContent),
+            __html: sanitizeString(Document.metadata.pageContent),
           }}
         />
       </div>

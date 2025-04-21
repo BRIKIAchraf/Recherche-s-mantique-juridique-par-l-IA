@@ -1,4 +1,4 @@
-export interface document {
+export interface Document {
   pageContent: string;
   metadata: {
     id?: string;
@@ -6,7 +6,7 @@ export interface document {
     plaintiff: string;
     defendant: string;
     date: string;
-    topoic: string;
+    topic: string;
     outcome: string;
     pageContent: string;
     [key: string]: any;
