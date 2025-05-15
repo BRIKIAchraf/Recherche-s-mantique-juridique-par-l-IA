@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import SearchForm from "@/components/SearchForm";
 import DocumentView from "@/components/DocumentView";
+import SearchFilters from "@/components/SearchFilters";
 import { type Document } from "./types/document";
 import { sanitizeString } from "@/lib/utils";
-
+import VoiceSearch from "@/components/VoiceSearch";
 interface SearchResult {
   metadata: Document["metadata"];
   content: string;
@@ -87,6 +88,12 @@ export default function Home() {
     null
   );
 
+  const [filterTopic, setFilterTopic] = useState<string | null>(null);
+  const [filterOutcome, setFilterOutcome] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<
+    "relevance" | "date" | "popularity"
+  >("relevance");
+
   useEffect(() => {
     checkAndBootstrapIndex(setIsBootstrapping, setIsIndexReady);
   }, []);
@@ -95,6 +102,34 @@ export default function Home() {
     setQuery("");
     setResults([]);
   };
+
+  const getFilteredResults = () => {
+    let filtered = [...results];
+
+    if (filterTopic) {
+      filtered = filtered.filter((r) => r.metadata.topic === filterTopic);
+    }
+
+    if (filterOutcome) {
+      filtered = filtered.filter((r) => r.metadata.outcome === filterOutcome);
+    }
+
+    if (sortOrder === "date") {
+      filtered.sort(
+        (a, b) =>
+          new Date(b.metadata.date).getTime() -
+          new Date(a.metadata.date).getTime()
+      );
+    } else if (sortOrder === "popularity") {
+      filtered.sort(
+        (a, b) => (b.metadata.popularity ?? 0) - (a.metadata.popularity ?? 0)
+      );
+    }
+
+    return filtered;
+  };
+
+  const filteredResults = getFilteredResults();
 
   if (selectedDocument) {
     return (
@@ -149,37 +184,50 @@ export default function Home() {
             )}
 
             {results.length > 0 && query && (
-              <div className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow-sm">
-                <p className="text-gray-700">
-                  Found {results.length} result{results.length > 1 ? "s" : ""}{" "}
-                  for{" "}
-                  <span className="font-semibold text-indigo-600">
-                    "{query}"
-                  </span>
-                </p>
-                <button
-                  onClick={clearResults}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                  aria-label="Clear results"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+              <>
+                <div className="mb-8">
+                  <SearchFilters
+                    filterTopic={filterTopic}
+                    setFilterTopic={setFilterTopic}
+                    filterOutcome={filterOutcome}
+                    setFilterOutcome={setFilterOutcome}
+                    sortOrder={sortOrder}
+                    setSortOrder={setSortOrder}
+                  />
+                </div>
+
+                <div className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow-sm">
+                  <p className="text-gray-700">
+                    Found {filteredResults.length} result
+                    {filteredResults.length > 1 ? "s" : ""} for{" "}
+                    <span className="font-semibold text-indigo-600">
+                      &quot;{query}&quot;
+                    </span>
+                  </p>
+                  <button
+                    onClick={clearResults}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label="Clear results"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {results.map((result, index) => (
+              {filteredResults.map((result, index) => (
                 <Card
                   key={index}
                   className="bg-white hover:shadow-xl transition-shadow duration-300 cursor-pointer"
@@ -226,6 +274,7 @@ export default function Home() {
             </div>
           </div>
         )}
+        <VoiceSearch onResult={(text) => setQuery(text)} />
       </div>
     </div>
   );
